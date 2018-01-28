@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon --watch js server.js"
   },
   "dependencies": {
     "@slack/client": "^3.15.0",
