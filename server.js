@@ -6,10 +6,12 @@ const express = require('express')
 const bodyParser = require('body-parser')
 
 const config = require('./config').config
-const groupme = require('./endpoints/groupme').router
 const slack = require('./services/slack')
 
 const app = express()
+
+let slackBot = slack.create(config.slackAPIToken)
+let groupmeRouter = express()
 
 const options = {
     cert: fs.readFileSync('./.ssl/fullchain.pem'),
@@ -18,13 +20,35 @@ const options = {
 
 app.use(bodyParser.json())
 
-app.use('/groupme/', groupme)
+app.use('/groupme/', groupmeRouter)
 
 app.listen(3000);
 https.createServer(options, app).listen(3443)
 
-let bot = slack.create(config.slackAPIToken)
+let mappings = {}
 
-bot.addMessageListener((messageInfo) => {
-    console.log(messageInfo)
+slackBot.addMessageListener((messageInfo) => {
+    if (messageInfo.text) {
+        if (messageInfo.text && messageInfo.text.indexOf('+join') === 0) {
+            let groupName = messageInfo.text.substring(5)
+            console.log(groupName)
+        }
+    }
+})
+
+groupmeRouter.post('/', (req, res) => {
+    if (req.body && req.body.entry && req.body.entry[0]) {
+        console.log("Body")
+        console.log(req.body)
+    }
+    res.status(200).send('OK')
+})
+
+groupmeRouter.get('/', (req, res) => {
+    console.log(req.query)
+    if (req.query && req.query['hub.mode'] === 'subscribe' && req.query['hub.verify_token'] === 'zucchini') {
+        res.send(req.query['hub.challenge'])
+    } else {
+        res.status(400).send('bad request')
+    }
 })
