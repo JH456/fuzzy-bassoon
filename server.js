@@ -66,9 +66,8 @@ slackBot.addMessageListener((messageInfo) => {
 })
 
 groupmeRouter.post('/', (req, res) => {
-    if (req.body && req.body.entry && req.body.entry[0]) {
-        console.log("Body")
-        console.log(req.body)
+    if (req.body) {
+        slackBot.say(mappings[req.group_id], req.name + ": " + req.text)
     }
     res.status(200).send('OK')
 })
