@@ -6,6 +6,11 @@ let joinGroup = (groupName, callbackURL) => {
     })
 }
 
+let sendMessage = (groupID, message) => {
+    console.log('jim@' + groupID + ': ' + message)
+}
+
 module.exports = {
-    joinGroup
+    joinGroup,
+    sendMessage
 }

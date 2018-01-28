@@ -41,7 +41,9 @@ let addMappings = (slackChannel, groupmeGroup) => {
     mappings[slackChannel] = groupmeGroup
     mappings[groupmeGroup] = slackChannel
     jsonfile.writeFile(config.mappingFile, mappings, (error) => {
-        console.log(error)
+        if (error) {
+            console.log(error)
+        }
     })
 }
 
@@ -58,6 +60,8 @@ slackBot.addMessageListener((messageInfo) => {
             .catch((error) => {
                 console.log(error)
             })
+        } else {
+            groupme.sendMessage(mappings[messageInfo.channel], messageInfo.text)
         }
     }
 })
