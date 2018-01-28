@@ -4,9 +4,11 @@ const https = require('https')
 const fs = require('fs')
 const express = require('express')
 const bodyParser = require('body-parser')
+const jsonfile = require('jsonfile')
 
 const config = require('./config').config
 const slack = require('./services/slack')
+const groupme = require('./services/groupme')
 
 const app = express()
 
@@ -27,11 +29,35 @@ https.createServer(options, app).listen(3443)
 
 let mappings = {}
 
+jsonfile.readFile(config.mappingFile, (error, data) => {
+    if (error) {
+        console.log('Could not read mappings file')
+    } else {
+        mappings = data
+    }
+})
+
+let addMappings = (slackChannel, groupmeGroup) => {
+    mappings[slackChannel] = groupmeGroup
+    mappings[groupmeGroup] = slackChannel
+    jsonfile.writeFile(config.mappingFile, mappings, (error) => {
+        console.log(error)
+    })
+}
+
 slackBot.addMessageListener((messageInfo) => {
     if (messageInfo.text) {
-        if (messageInfo.text && messageInfo.text.indexOf('+join') === 0) {
-            let groupName = messageInfo.text.substring(5)
-            console.log(groupName)
+        if (messageInfo.text && messageInfo.text.indexOf('+join') === 0 &&
+            messageInfo.text.length > 6) {
+            let groupName = messageInfo.text.substring(6)
+            groupme.joinGroup(groupName, config.callbackURL)
+            .then((groupmeGroupID) => {
+                console.log(groupmeGroupID)
+                addMappings(messageInfo.channel, groupmeGroupID)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
         }
     }
 })

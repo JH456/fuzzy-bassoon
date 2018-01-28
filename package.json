@@ -6,7 +6,9 @@
     "@slack/client": "^3.15.0",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
-    "https": "^1.0.0"
+    "https": "^1.0.0",
+    "jsonfile": "^4.0.0",
+    "request": "^2.83.0"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"
