@@ -20,7 +20,8 @@ let joinRequest = (groupID, groupmeName, callbackURL, token) => {
             if (error) {
                 reject(error)
             } else {
-                resolve(groupID)
+                console.log(body.response.bot.bot_id)
+                resolve({groupID, botID: body.response.bot.bot_id})
             }
         })
     })
@@ -57,8 +58,23 @@ let joinGroup = (groupName, groupmeName, callbackURL, token) => {
     })
 }
 
-let sendMessage = (groupID, message) => {
-    console.log('jim@' + groupID + ': ' + message)
+let sendMessage = (groupmeBot, text) => {
+    return new Promise((resolve, reject) => {
+        request({
+            method: 'POST',
+            url: groupmeAPIURL + 'bots/post',
+            json: {
+                bot_id: groupmeBot.botID,
+                text
+            }
+        }, (error, response, body) => {
+            if (error) {
+                reject(error)
+            } else {
+                resolve('success!')
+            }
+        })
+    })
 }
 
 module.exports = {

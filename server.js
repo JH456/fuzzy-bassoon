@@ -37,9 +37,9 @@ jsonfile.readFile(config.mappingFile, (error, data) => {
     }
 })
 
-let addMappings = (slackChannel, groupmeGroup) => {
-    mappings[slackChannel] = groupmeGroup
-    mappings[groupmeGroup] = slackChannel
+let addMappings = (slackChannel, groupmeBot) => {
+    mappings[slackChannel] = groupmeBot
+    mappings[groupmeBot.groupID] = slackChannel
     jsonfile.writeFile(config.mappingFile, mappings, (error) => {
         if (error) {
             console.log(error)
@@ -53,9 +53,8 @@ slackBot.addMessageListener((messageInfo) => {
             messageInfo.text.length > 6) {
             let groupName = messageInfo.text.substring(6)
             groupme.joinGroup(groupName, config.groupmeName, config.callbackURL, config.groupmeAPIToken)
-            .then((groupmeGroupID) => {
-                console.log(groupmeGroupID)
-                addMappings(messageInfo.channel, groupmeGroupID)
+            .then((groupmeBot) => {
+                addMappings(messageInfo.channel, groupmeBot)
             })
             .catch((error) => {
                 slackBot.say(messageInfo.channel, error)
@@ -72,13 +71,4 @@ groupmeRouter.post('/', (req, res) => {
         console.log(req.body)
     }
     res.status(200).send('OK')
-})
-
-groupmeRouter.get('/', (req, res) => {
-    console.log(req.query)
-    if (req.query && req.query['hub.mode'] === 'subscribe' && req.query['hub.verify_token'] === 'zucchini') {
-        res.send(req.query['hub.challenge'])
-    } else {
-        res.status(400).send('bad request')
-    }
 })
