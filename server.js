@@ -52,13 +52,13 @@ slackBot.addMessageListener((messageInfo) => {
         if (messageInfo.text && messageInfo.text.indexOf('+join') === 0 &&
             messageInfo.text.length > 6) {
             let groupName = messageInfo.text.substring(6)
-            groupme.joinGroup(groupName, config.callbackURL)
+            groupme.joinGroup(groupName, config.groupmeName, config.callbackURL, config.groupmeAPIToken)
             .then((groupmeGroupID) => {
                 console.log(groupmeGroupID)
                 addMappings(messageInfo.channel, groupmeGroupID)
             })
             .catch((error) => {
-                console.log(error)
+                slackBot.say(messageInfo.channel, error)
             })
         } else {
             groupme.sendMessage(mappings[messageInfo.channel], messageInfo.text)
